@@ -1,0 +1,16 @@
+<input [(ngModel)]="nameMedicament" #ctrl="ngModel" (ngModelChange) ="getMedicamentByName()" required>
+<h2> {{nameMedicament}}!</h2>
+<p>
+<li *ngFor="let res of result;">
+    <input type="text" [(ngModel)]="result">
+</li>
+
+</p>
+<ul>
+    <li *ngFor="let medicament of medicaments;">
+        <h2>{{medicament.name}}</h2>
+        <div><span> matin  </span>{{ medicament.posologie.matin}}</div>
+        <div><span> soir  </span>{{ medicament.posologie.midi}}</div>
+        <div><span> midi </span>{{ medicament.posologie.soir}}</div>
+    </li>
+</ul>
