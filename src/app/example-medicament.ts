@@ -1,8 +1,7 @@
 import {Medicament} from './Medicament';
 
 export const MEDICAMENTS: Medicament[] = [{
-    id: 1,
-    name : 'doliprane',
+    nom : 'doliprane',
     posologie : {
         matin : 1,
         midi : 2,

@@ -1,7 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import {Medicament} from '../Medicament';
 import { MedicamentService } from '../medicament.service';
-import {elementEventFullName} from '@angular/compiler/src/view_compiler/view_compiler';
+import { FormControl } from "@angular/forms";
+import {Posologie} from '../Posologie';
+import {DomSanitizer} from '@angular/platform-browser';
 
 
 @Component({
@@ -11,38 +13,57 @@ import {elementEventFullName} from '@angular/compiler/src/view_compiler/view_com
 })
 export class MedicamentsComponent implements OnInit {
 
-  medicaments: Medicament[];
+  medicaments =  [];
   listMedicament = [];
   nameMedicament: string = '';
-  result: [];
-
-  constructor(private medicamentService: MedicamentService) {
+  control = new FormControl();
+  constructor(private medicamentService: MedicamentService,private sanitizer: DomSanitizer) {
   }
-  getMedicament(): void {
-    this.medicaments = this.medicamentService.getMedicament();
-  }
-  getMedicamentService(): void {
-    this.medicamentService.getAllMedicament().subscribe(
-      data =>{
-        data.map(element=>{
-          this.listMedicament.push(element.nom);
-        });
+  getMedicamentTwo(nameMedicament){
+      this.nameMedicament = nameMedicament;
+      this.listMedicament = [];
+      if(this.nameMedicament.length > 3 ) {
+          this.medicamentService.getMedicamentByName(this.nameMedicament).subscribe(
+              data => {
+                  data.map(element => {
+                      if(element.nom.toLowerCase().includes(nameMedicament.toLowerCase()))
+                      this.listMedicament.push(element.nom);
+                  });
+              }
+          );
       }
-    );
   }
-  getMedicamentByName() {
-    if(this.nameMedicament.length > 3) {
-      this.listMedicament.forEach(element => {
-      if(element.toLowerCase().includes(this.nameMedicament.toLowerCase())) {
-          console.log(element);
-          };
-      });
+
+  selectionChange(item) {
+    let medicament = new Medicament(item,new Posologie(0,0,0))
+    this.medicaments.push(medicament);
+  }
+  onDelete(medicament){
+    let index = this.medicaments.indexOf(medicament);
+    if (index > -1) {
+      this.medicaments.splice(index, 1);
     }
-    return this.result;
   }
+  generateDownloadJsonUri() {
+        const theJSON = JSON.stringify(this.medicaments);
+        const uri = this.sanitizer.bypassSecurityTrustUrl("data:text/json;charset=UTF-8," + encodeURIComponent(theJSON));
+        return uri;
+  }
+  onFileChanged(event) {
+        const selectedFile = event.target.files[0];
+        const fileReader = new FileReader();
+        fileReader.readAsText( selectedFile, "UTF-8");
+        fileReader.onload = () => {
+            let json = JSON.parse(fileReader.result.toString());
+            json.forEach(element => {
+                this.medicaments.push(element);
+            });
+        };
+        fileReader.onerror = (error) => {
+            console.log(error);
+        };
+    }
   ngOnInit() {
-    this.getMedicament();
-    this.getMedicamentService();
-    console.log(this.listMedicament);
+
   }
 }

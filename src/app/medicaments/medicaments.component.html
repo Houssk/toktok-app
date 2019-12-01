@@ -1,16 +1,51 @@
-<input [(ngModel)]="nameMedicament" #ctrl="ngModel" (ngModelChange) ="getMedicamentByName()" required>
-<h2> {{nameMedicament}}!</h2>
-<p>
-<li *ngFor="let res of result;">
-    <input type="text" [(ngModel)]="result">
-</li>
+<form class = "tp-form">
+    <mat-form-field class = "tp-full-width">
+        <input type = "text"
+               [(ngModel)]="nameMedicament"
+               (ngModelChange) ="getMedicamentTwo(nameMedicament)"
+               placeholder = "US State"
+               aria-label = "Number"
+               matInput
+               [formControl] = "control"
+               placeholder="Sélectionner un médicament"
+               [matAutocomplete] = "auto">
+        <mat-autocomplete #auto = "matAutocomplete">
+            <mat-option *ngFor = "let medicament of listMedicament" [value] = "medicament" (onSelectionChange)="selectionChange(medicament)">
+                {{medicament}}
+            </mat-option>
+        </mat-autocomplete>
+    </mat-form-field>
+</form>
+<table class="table table-striped">
+    <thead>
+    <tr>
+        <th>Nom</th>
+        <th scope="col">Posologie|Matin</th>
+        <th scope="col">Posologie|Midi</th>
+        <th scope="col">Posologie|Soir</th>
+        <th scope="col"></th>
 
-</p>
-<ul>
-    <li *ngFor="let medicament of medicaments;">
-        <h2>{{medicament.name}}</h2>
-        <div><span> matin  </span>{{ medicament.posologie.matin}}</div>
-        <div><span> soir  </span>{{ medicament.posologie.midi}}</div>
-        <div><span> midi </span>{{ medicament.posologie.soir}}</div>
-    </li>
-</ul>
+    </tr>
+    </thead>
+    <tbody>
+    <tr *ngFor="let medic of medicaments">
+        <td>{{ medic.nom }}</td>
+        <td> <input type="number" min="0" [(ngModel)]="medic.posologie.matin"></td>
+        <td> <input type="number" min="0" [(ngModel)]="medic.posologie.midi"></td>
+        <td> <input type="number" min="0" [(ngModel)]="medic.posologie.soir"></td>
+        <td><button
+                [swal]="{ text: 'Voulez vous supprimer ce médicament?' }"
+                (confirm)="onDelete(medic)"
+                (cancel)="onDelete()"
+                type="button" class="btn btn-danger">Supprimer</button></td>
+    </tr>
+    </tbody>
+</table>
+<div class="d-flex justify-content-center">
+    <a type="button" class="btn btn-secondary" title="Download JSON" [href]="generateDownloadJsonUri()" download="prescription.json"> Exporter</a>
+    <input class="btn"
+           style="display: none"
+           type="file" (change)="onFileChanged($event)"
+           #fileInput>
+    <button type="button" class="btn btn-secondary" (click)="fileInput.click()">Importer</button>
+</div>
